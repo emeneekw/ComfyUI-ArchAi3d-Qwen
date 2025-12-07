@@ -1,0 +1,971 @@
+{
+  "last_node_id": 16,
+  "last_link_id": 15,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "UnetLoaderGGUF",
+      "pos": [
+        50,
+        50
+      ],
+      "size": {
+        "0": 300,
+        "1": 100
+      },
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            9
+          ]
+        }
+      ],
+      "properties": {},
+      "widgets_values": [
+        "sd_xl_base_1.0.gguf"
+      ],
+      "title": "GGUF Unet Loader"
+    },
+    {
+      "id": 2,
+      "type": "DualCLIPLoader",
+      "pos": [
+        50,
+        250
+      ],
+      "size": {
+        "0": 300,
+        "1": 100
+      },
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            8
+          ]
+        }
+      ],
+      "properties": {},
+      "widgets_values": [
+        "t5xxl_fp16.safetensors",
+        "clip_l.safetensors",
+        "sdxl"
+      ],
+      "title": "SDXL CLIP Loader"
+    },
+    {
+      "id": 3,
+      "type": "VAELoader",
+      "pos": [
+        50,
+        450
+      ],
+      "size": {
+        "0": 300,
+        "1": 100
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            4,
+            14
+          ]
+        }
+      ],
+      "properties": {},
+      "widgets_values": [
+        "sdxl_vae.safetensors"
+      ],
+      "title": "VAE Loader"
+    },
+    {
+      "id": 4,
+      "type": "CLIPLoader",
+      "pos": [
+        50,
+        650
+      ],
+      "size": {
+        "0": 300,
+        "1": 100
+      },
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            2
+          ]
+        }
+      ],
+      "properties": {},
+      "widgets_values": [
+        "qwen_vl_clip.safetensors"
+      ],
+      "title": "Qwen-VL CLIP Loader"
+    },
+    {
+      "id": 5,
+      "type": "LoadImage",
+      "pos": [
+        750,
+        50
+      ],
+      "size": {
+        "0": 300,
+        "1": 100
+      },
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": []
+        }
+      ],
+      "properties": {},
+      "widgets_values": [
+        "example.png",
+        "image"
+      ],
+      "title": "Input Image"
+    },
+    {
+      "id": 6,
+      "type": "ArchAi3D_Qwen_Image_Scale",
+      "pos": [
+        750,
+        300
+      ],
+      "size": {
+        "0": 300,
+        "1": 100
+      },
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "*",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image_vl",
+          "type": "IMAGE",
+          "links": [
+            5
+          ]
+        },
+        {
+          "name": "image_latent",
+          "type": "IMAGE",
+          "links": [
+            6
+          ]
+        },
+        {
+          "name": "debug_text",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "properties": {},
+      "widgets_values": [
+        "auto",
+        "16:9 (Panorama)",
+        147456,
+        32,
+        1763584,
+        32,
+        0.3,
+        true,
+        true,
+        true,
+        "area",
+        "disabled",
+        false,
+        "lanczos",
+        "center",
+        false,
+        true
+      ],
+      "title": "Smart Image Scale"
+    },
+    {
+      "id": 7,
+      "type": "ArchAi3D_Object_Focus_Camera_V7",
+      "pos": [
+        1250,
+        50
+      ],
+      "size": {
+        "0": 300,
+        "1": 100
+      },
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "links": [
+            3
+          ]
+        },
+        {
+          "name": "system_prompt",
+          "type": "STRING",
+          "links": [
+            7
+          ]
+        },
+        {
+          "name": "description",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "properties": {},
+      "widgets_values": [
+        "modern interior",
+        "Wide Shot (WS)",
+        "Eye Level",
+        "Static (No Movement)",
+        "slightly_above",
+        "front",
+        "Shot Size Presets",
+        2.0,
+        true,
+        "Wide Angle (24-35mm)",
+        "English (Universal)",
+        "Focus Transition (Reposition to Object)",
+        "Detailed (Full cinematography explanation)",
+        "None (Manual entry)",
+        "Cinematic Quality",
+        ""
+      ],
+      "title": "Object Focus Camera"
+    },
+    {
+      "id": 8,
+      "type": "ArchAi3D_Clean_Room_Prompt",
+      "pos": [
+        1250,
+        650
+      ],
+      "size": {
+        "0": 300,
+        "1": 100
+      },
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "user_prompt",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "name": "system_prompt",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "properties": {},
+      "widgets_values": [
+        "Remove + Paint All",
+        "image1",
+        "construction debris/tools",
+        "modern office",
+        false,
+        "watermark",
+        "anywhere",
+        "Keep Original",
+        "",
+        "Keep Original",
+        "",
+        "Keep Original",
+        "",
+        "Real Estate",
+        "Natural Daylight",
+        true,
+        true,
+        true,
+        true,
+        true,
+        "Room Transform Specialist",
+        ""
+      ],
+      "title": "Clean Room Prompt"
+    },
+    {
+      "id": 9,
+      "type": "ArchAi3D_Qwen_Material_Changer",
+      "pos": [
+        1750,
+        50
+      ],
+      "size": {
+        "0": 300,
+        "1": 100
+      },
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "name": "material_description",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "name": "system_prompt",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "properties": {},
+      "widgets_values": [
+        "the kitchen countertop",
+        "",
+        "stone",
+        "custom",
+        "white Carrara marble",
+        "modern kitchen",
+        true,
+        false
+      ],
+      "title": "Material Changer"
+    },
+    {
+      "id": 10,
+      "type": "ArchAi3D_Qwen_Style_Transfer",
+      "pos": [
+        1750,
+        650
+      ],
+      "size": {
+        "0": 300,
+        "1": 100
+      },
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "name": "style_description",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "name": "system_prompt",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "properties": {},
+      "widgets_values": [
+        "the house",
+        "",
+        "ice",
+        "architectural exterior",
+        false
+      ],
+      "title": "Style Transfer"
+    },
+    {
+      "id": 11,
+      "type": "ArchAi3D_Qwen_Person_Perspective",
+      "pos": [
+        2250,
+        50
+      ],
+      "size": {
+        "0": 300,
+        "1": 100
+      },
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "perspective_prompt",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "name": "full_prompt",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "name": "preservation_hints",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "name": "system_prompt",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "properties": {},
+      "widgets_values": [
+        "low_angle_worms_eye",
+        "strict",
+        "power",
+        "auto",
+        "natural",
+        "outdoor city street",
+        true,
+        true,
+        true,
+        "high",
+        "balanced",
+        "",
+        false
+      ],
+      "title": "Person Perspective"
+    },
+    {
+      "id": 12,
+      "type": "ArchAi3D_Qwen_Encoder_V3",
+      "pos": [
+        1250,
+        1250
+      ],
+      "size": {
+        "0": 300,
+        "1": 100
+      },
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "*",
+          "link": 2
+        },
+        {
+          "name": "prompt",
+          "type": "*",
+          "link": 3
+        },
+        {
+          "name": "vae",
+          "type": "*",
+          "link": 4
+        },
+        {
+          "name": "image1_vl",
+          "type": "*",
+          "link": 5
+        },
+        {
+          "name": "image2_vl",
+          "type": "*",
+          "link": null
+        },
+        {
+          "name": "image3_vl",
+          "type": "*",
+          "link": null
+        },
+        {
+          "name": "image1_latent",
+          "type": "*",
+          "link": 6
+        },
+        {
+          "name": "image2_latent",
+          "type": "*",
+          "link": null
+        },
+        {
+          "name": "image3_latent",
+          "type": "*",
+          "link": null
+        },
+        {
+          "name": "system_prompt",
+          "type": "*",
+          "link": 7
+        },
+        {
+          "name": "conditioning_balance_override",
+          "type": "*",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": [
+            10
+          ]
+        },
+        {
+          "name": "latent",
+          "type": "LATENT",
+          "links": [
+            12
+          ]
+        },
+        {
+          "name": "formatted_prompt",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "name": "recommended_cfg",
+          "type": "FLOAT",
+          "links": []
+        }
+      ],
+      "properties": {},
+      "widgets_values": [
+        "",
+        "Balanced",
+        "",
+        1.0,
+        1.0,
+        "Image 1",
+        "Image 2",
+        "Image 3",
+        1.0,
+        1.0,
+        1.0,
+        false
+      ],
+      "title": "Qwen Encoder V3"
+    },
+    {
+      "id": 13,
+      "type": "CLIPTextEncode",
+      "pos": [
+        1600,
+        1250
+      ],
+      "size": {
+        "0": 300,
+        "1": 100
+      },
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "*",
+          "link": 8
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            11
+          ]
+        }
+      ],
+      "properties": {},
+      "widgets_values": [
+        "text, watermark, low quality, blurry, distorted, ugly, bad anatomy"
+      ],
+      "title": "Negative Prompt"
+    },
+    {
+      "id": 14,
+      "type": "KSampler",
+      "pos": [
+        1600,
+        1500
+      ],
+      "size": {
+        "0": 300,
+        "1": 100
+      },
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "*",
+          "link": 9
+        },
+        {
+          "name": "positive",
+          "type": "*",
+          "link": 10
+        },
+        {
+          "name": "negative",
+          "type": "*",
+          "link": 11
+        },
+        {
+          "name": "latent_image",
+          "type": "*",
+          "link": 12
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            13
+          ]
+        }
+      ],
+      "properties": {},
+      "widgets_values": [
+        403218,
+        "fixed",
+        30,
+        4.0,
+        "dpmpp_2m",
+        "karras",
+        1.0
+      ],
+      "title": "KSampler (GGUF Optimized)"
+    },
+    {
+      "id": 15,
+      "type": "VAEDecode",
+      "pos": [
+        1950,
+        1500
+      ],
+      "size": {
+        "0": 300,
+        "1": 100
+      },
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "*",
+          "link": 13
+        },
+        {
+          "name": "vae",
+          "type": "*",
+          "link": 14
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            15
+          ]
+        }
+      ],
+      "properties": {},
+      "widgets_values": [],
+      "title": "VAE Decode"
+    },
+    {
+      "id": 16,
+      "type": "SaveImage",
+      "pos": [
+        2200,
+        1500
+      ],
+      "size": {
+        "0": 300,
+        "1": 100
+      },
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "*",
+          "link": 15
+        }
+      ],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "ArchViz_GGUF_Result"
+      ],
+      "title": "Save Result"
+    }
+  ],
+  "links": [
+    [
+      1,
+      5,
+      0,
+      6,
+      0,
+      "image"
+    ],
+    [
+      2,
+      4,
+      0,
+      12,
+      0,
+      "clip"
+    ],
+    [
+      3,
+      7,
+      0,
+      12,
+      1,
+      "prompt"
+    ],
+    [
+      4,
+      3,
+      0,
+      12,
+      2,
+      "vae"
+    ],
+    [
+      5,
+      6,
+      0,
+      12,
+      3,
+      "image1_vl"
+    ],
+    [
+      6,
+      6,
+      1,
+      12,
+      6,
+      "image1_latent"
+    ],
+    [
+      7,
+      7,
+      1,
+      12,
+      9,
+      "system_prompt"
+    ],
+    [
+      8,
+      2,
+      0,
+      13,
+      0,
+      "clip"
+    ],
+    [
+      9,
+      1,
+      0,
+      14,
+      0,
+      "model"
+    ],
+    [
+      10,
+      12,
+      0,
+      14,
+      1,
+      "positive"
+    ],
+    [
+      11,
+      13,
+      0,
+      14,
+      2,
+      "negative"
+    ],
+    [
+      12,
+      12,
+      1,
+      14,
+      3,
+      "latent_image"
+    ],
+    [
+      13,
+      14,
+      0,
+      15,
+      0,
+      "samples"
+    ],
+    [
+      14,
+      3,
+      0,
+      15,
+      1,
+      "vae"
+    ],
+    [
+      15,
+      15,
+      0,
+      16,
+      0,
+      "images"
+    ]
+  ],
+  "groups": [
+    {
+      "title": "Loaders (GGUF & Qwen)",
+      "bounding": [
+        10,
+        10,
+        600,
+        800
+      ],
+      "color": "#3f789e",
+      "font_size": 24
+    },
+    {
+      "title": "Input & Scaling",
+      "bounding": [
+        700,
+        10,
+        400,
+        400
+      ],
+      "color": "#3f789e",
+      "font_size": 24
+    },
+    {
+      "title": "Mode 1: Object Focus (Camera V7)",
+      "bounding": [
+        1200,
+        10,
+        400,
+        500
+      ],
+      "color": "#3f789e",
+      "font_size": 24
+    },
+    {
+      "title": "Mode 2: Room Transform",
+      "bounding": [
+        1200,
+        600,
+        400,
+        500
+      ],
+      "color": "#3f789e",
+      "font_size": 24
+    },
+    {
+      "title": "Mode 3: Material Changer",
+      "bounding": [
+        1700,
+        10,
+        400,
+        500
+      ],
+      "color": "#3f789e",
+      "font_size": 24
+    },
+    {
+      "title": "Mode 4: Style Transfer",
+      "bounding": [
+        1700,
+        600,
+        400,
+        500
+      ],
+      "color": "#3f789e",
+      "font_size": 24
+    },
+    {
+      "title": "Mode 5: Person Perspective",
+      "bounding": [
+        2200,
+        10,
+        400,
+        500
+      ],
+      "color": "#3f789e",
+      "font_size": 24
+    },
+    {
+      "title": "Qwen Encoding & Generation",
+      "bounding": [
+        1200,
+        1200,
+        1000,
+        600
+      ],
+      "color": "#3f789e",
+      "font_size": 24
+    }
+  ],
+  "config": {},
+  "extra": {},
+  "version": 0.4
+}
