@@ -6,7 +6,7 @@ Author: Amir Ferdos (ArchAi3d)
 Email: Amir84ferdos@gmail.com
 LinkedIn: https://www.linkedin.com/in/archai3d/
 GitHub: https://github.com/amir84ferdos
-Version: 2.4.0
+Version: 2.5.0
 License: Dual License (Free for personal use, Commercial license required for business use)
 """
 
@@ -24,6 +24,11 @@ from .nodes.core.utils.archai3d_qwen_image_scale import ArchAi3D_Qwen_Image_Scal
 
 from .nodes.core.prompts.archai3d_clean_room_prompt import ArchAi3D_Clean_Room_Prompt
 from .nodes.core.prompts.archai3d_qwen_system_prompt import ArchAi3D_Qwen_System_Prompt
+
+# ============================================================================
+# ULTIMATE NODES (NEW v2.5.0)
+# ============================================================================
+from .nodes.archai3d_ultimate_nodes import ArchAi3D_Ultimate_Prompt, ArchAi3D_Ultimate_Encoder
 
 # ============================================================================
 # CAMERA CONTROL NODES
@@ -135,6 +140,10 @@ from .nodes.utils.archai3d_metric3d_normal import ArchAi3D_Metric3D_Normal, Arch
 # ============================================================================
 
 NODE_CLASS_MAPPINGS = {
+    # ULTIMATE NODES
+    "ArchAi3D_Ultimate_Prompt": ArchAi3D_Ultimate_Prompt,
+    "ArchAi3D_Ultimate_Encoder": ArchAi3D_Ultimate_Encoder,
+
     # Core - Encoders
     "ArchAi3D_Qwen_Encoder": ArchAi3D_Qwen_Encoder,
     "ArchAi3D_Qwen_Encoder_V2": ArchAi3D_Qwen_Encoder_V2,
@@ -246,6 +255,10 @@ NODE_CLASS_MAPPINGS = {
 # ============================================================================
 
 NODE_DISPLAY_NAME_MAPPINGS = {
+    # ULTIMATE NODES
+    "ArchAi3D_Ultimate_Prompt": "🌟 Ultimate ArchViz Prompt",
+    "ArchAi3D_Ultimate_Encoder": "🌟 Ultimate ArchViz Encoder",
+
     # Core - Encoders
     "ArchAi3D_Qwen_Encoder": "🎨 Qwen Encoder",
     "ArchAi3D_Qwen_Encoder_V2": "🎨 Qwen Encoder V2",
@@ -363,7 +376,7 @@ WEB_DIRECTORY = os.path.join(os.path.dirname(__file__), "web")
 # ============================================================================
 
 __all__ = ['NODE_CLASS_MAPPINGS', 'NODE_DISPLAY_NAME_MAPPINGS', 'WEB_DIRECTORY']
-__version__ = "2.3.0"
+__version__ = "2.5.0"
 __author__ = "Amir Ferdos (ArchAi3d)"
 
 # ============================================================================
@@ -372,6 +385,7 @@ __author__ = "Amir Ferdos (ArchAi3d)"
 
 print("=" * 70)
 print(f"[ArchAi3d-Qwen v{__version__}] Loading nodes...")
+print(f"  🌟 ULTIMATE: 2 All-in-One Nodes (Prompt + Encoder)")
 print(f"  🎨 Core Encoding: 5 nodes (V3 + variants)")
 print(f"  📏 Core Utils: 1 node (Image Scale)")
 print(f"  💬 Prompt Builders: 3 nodes (Clean Room + Position Guide)")
@@ -381,7 +395,7 @@ print(f"  🎯 Utils: 10 nodes (Mask Crop/Rotate + Color Tools + Low VRAM)")
 print(f"  🌐 Input Nodes: 9 nodes (String, Int, Float, Boolean, Load URL, Save, Conditioning Balance, Gemini)")
 print(f"  ✅ Total: {len(NODE_CLASS_MAPPINGS)} nodes loaded!")
 print(f"")
-print(f"  ⭐ NEW: Low VRAM optimized SAM3 & Metric3D nodes with disk caching!")
+print(f"  ⭐ NEW: Ultimate Nodes to simplify ArchViz workflows!")
 print(f"  📚 Documentation: ./docs/")
 print(f"  ⚖️  License: Dual (Free personal, Commercial available)")
 print("=" * 70)
