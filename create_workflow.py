@@ -83,55 +83,14 @@ class WorkflowBuilder:
 builder = WorkflowBuilder()
 
 # =================================================================================================
-# GROUP 1: GGUF Model Loading
+# GROUP 1: Shared Inputs (Ultimate Prompt & Image)
 # =================================================================================================
-builder.add_group("Loaders (GGUF & Qwen)", [10, 10, 600, 800])
+builder.add_group("Shared Inputs", [10, 10, 600, 600])
 
-# Unet Loader (GGUF)
-unet_loader_id, unet_loader_node = builder.add_node(
-    "UnetLoaderGGUF",
-    [50, 50],
-    widgets_values=["sd_xl_base_1.0.gguf"],
-    title="GGUF Unet Loader"
-)
-unet_loader_node["outputs"] = [{"name": "MODEL", "type": "MODEL", "links": []}]
-
-# CLIP Loader (Standard/Dual for SDXL)
-clip_loader_id, clip_loader_node = builder.add_node(
-    "DualCLIPLoader",
-    [50, 250],
-    widgets_values=["t5xxl_fp16.safetensors", "clip_l.safetensors", "sdxl"],
-    title="SDXL CLIP Loader"
-)
-clip_loader_node["outputs"] = [{"name": "CLIP", "type": "CLIP", "links": []}]
-
-# VAE Loader
-vae_loader_id, vae_loader_node = builder.add_node(
-    "VAELoader",
-    [50, 450],
-    widgets_values=["sdxl_vae.safetensors"],
-    title="VAE Loader"
-)
-vae_loader_node["outputs"] = [{"name": "VAE", "type": "VAE", "links": []}]
-
-# Qwen CLIP Loader (Specific for Qwen-VL)
-qwen_clip_id, qwen_clip_node = builder.add_node(
-    "CLIPLoader",
-    [50, 650],
-    widgets_values=["qwen_vl_clip.safetensors"],
-    title="Qwen-VL CLIP Loader"
-)
-qwen_clip_node["outputs"] = [{"name": "CLIP", "type": "CLIP", "links": []}]
-
-
-# =================================================================================================
-# GROUP 2: Input Image
-# =================================================================================================
-builder.add_group("Input Image", [700, 10, 400, 400])
-
+# Input Image
 image_node_id, image_node = builder.add_node(
     "LoadImage",
-    [750, 50],
+    [50, 50],
     widgets_values=["example.png", "image"],
     title="Input Image"
 )
@@ -140,33 +99,15 @@ image_node["outputs"] = [
     {"name": "MASK", "type": "MASK", "links": []}
 ]
 
-
-# =================================================================================================
-# GROUP 3: Ultimate Prompt Generator
-# Consolidates all 5 previous modes (Object, Person, Room, Material, Style)
-# =================================================================================================
-builder.add_group("Ultimate Prompt", [1200, 10, 500, 800])
-
-# Widgets mapping for ArchAi3D_Ultimate_Prompt (based on INPUT_TYPES order in python file)
-# 1. mode
-# 2. main_subject
-# 3. scene_context
-# ... camera params ...
-# ... person params ...
-# ... room params ...
-# ... material params ...
-# ... style params ...
-# ... debug ...
-
-# Default Mode: "Camera: Object Focus (Product/Arch)"
+# Ultimate Prompt Generator
 prompt_node_id, prompt_node = builder.add_node(
     "ArchAi3D_Ultimate_Prompt",
-    [1250, 50],
+    [50, 300],
     inputs={},
     widgets_values=[
         "Camera: Object Focus (Product/Arch)",  # mode
-        "modern interior",                      # main_subject
-        "",                                     # scene_context
+        "modern interior with large windows",   # main_subject
+        "soft lighting, high detail",           # scene_context
         # Camera
         "Medium Shot (MS)", "Eye Level", "Static (No Movement)", "Normal (50mm)",
         # Person
@@ -187,29 +128,45 @@ prompt_node["outputs"] = [
     {"name": "system_prompt", "type": "STRING", "links": []}
 ]
 
-
 # =================================================================================================
-# GROUP 4: Ultimate Encoding (Scale + Encode)
+# GROUP 2: SDXL Pipeline (Qwen Enhanced)
 # =================================================================================================
-builder.add_group("Ultimate Encoding", [1200, 900, 600, 500])
+builder.add_group("SDXL Pipeline (Qwen Enhanced)", [700, 10, 1000, 800])
 
+# SDXL Loaders
+sdxl_unet_id, sdxl_unet_node = builder.add_node(
+    "UnetLoaderGGUF", [750, 50], widgets_values=["sd_xl_base_1.0.gguf"], title="SDXL Unet (GGUF)"
+)
+sdxl_unet_node["outputs"] = [{"name": "MODEL", "type": "MODEL", "links": []}]
+
+sdxl_clip_id, sdxl_clip_node = builder.add_node(
+    "DualCLIPLoader", [750, 200], widgets_values=["t5xxl_fp16.safetensors", "clip_l.safetensors", "sdxl"], title="SDXL CLIP"
+)
+sdxl_clip_node["outputs"] = [{"name": "CLIP", "type": "CLIP", "links": []}]
+
+sdxl_vae_id, sdxl_vae_node = builder.add_node(
+    "VAELoader", [750, 350], widgets_values=["sdxl_vae.safetensors"], title="SDXL VAE"
+)
+sdxl_vae_node["outputs"] = [{"name": "VAE", "type": "VAE", "links": []}]
+
+qwen_clip_id, qwen_clip_node = builder.add_node(
+    "CLIPLoader", [750, 500], widgets_values=["qwen_vl_clip.safetensors"], title="Qwen CLIP"
+)
+qwen_clip_node["outputs"] = [{"name": "CLIP", "type": "CLIP", "links": []}]
+
+# Ultimate Encoder (SDXL-specific)
 encoder_id, encoder_node = builder.add_node(
     "ArchAi3D_Ultimate_Encoder",
-    [1250, 950],
+    [1050, 200],
     inputs={
         "image": [image_node_id, 0],
         "clip": [qwen_clip_id, 0],
-        "prompt": [prompt_node_id, 0],       # Connected to Prompt
-        "vae": [vae_loader_id, 0],
-        "system_prompt": [prompt_node_id, 1] # Connected to System Prompt
+        "prompt": [prompt_node_id, 0],
+        "vae": [sdxl_vae_id, 0],
+        "system_prompt": [prompt_node_id, 1]
     },
-    widgets_values=[
-        "16:9 (Panorama)", # aspect_ratio
-        "auto",            # scale_mode
-        "Balanced",        # conditioning_balance
-        False              # debug_mode
-    ],
-    title="🌟 Ultimate ArchViz Encoder"
+    widgets_values=["16:9 (Panorama)", "auto", "Balanced", False],
+    title="🌟 Ultimate Encoder"
 )
 encoder_node["outputs"] = [
     {"name": "conditioning", "type": "CONDITIONING", "links": []},
@@ -218,57 +175,125 @@ encoder_node["outputs"] = [
     {"name": "scaled_image", "type": "IMAGE", "links": []}
 ]
 
-
-# =================================================================================================
-# GROUP 5: Generation (KSampler + Decode)
-# =================================================================================================
-builder.add_group("Generation", [1900, 900, 800, 600])
-
 # Negative Prompt
-neg_prompt_id, neg_prompt_node = builder.add_node(
-    "CLIPTextEncode",
-    [1950, 950],
-    inputs={"clip": [clip_loader_id, 0]},
-    widgets_values=["text, watermark, low quality, blurry, distorted, ugly, bad anatomy"],
-    title="Negative Prompt"
+sdxl_neg_id, sdxl_neg_node = builder.add_node(
+    "CLIPTextEncode", [1050, 550], inputs={"clip": [sdxl_clip_id, 0]},
+    widgets_values=["text, watermark, low quality"], title="Negative"
 )
-neg_prompt_node["outputs"] = [{"name": "CONDITIONING", "type": "CONDITIONING", "links": []}]
+sdxl_neg_node["outputs"] = [{"name": "CONDITIONING", "type": "CONDITIONING", "links": []}]
 
-# KSampler
-ksampler_id, ksampler_node = builder.add_node(
-    "KSampler",
-    [1950, 1150],
+# KSampler SDXL
+sdxl_sample_id, sdxl_sample_node = builder.add_node(
+    "KSampler", [1400, 200],
     inputs={
-        "model": [unet_loader_id, 0],
+        "model": [sdxl_unet_id, 0],
         "positive": [encoder_id, 0],
-        "negative": [neg_prompt_id, 0],
-        "latent_image": [encoder_id, 1], # Use latent from Encoder
+        "negative": [sdxl_neg_id, 0],
+        "latent_image": [encoder_id, 1]
     },
-    widgets_values=[random.randint(1, 10000000), "fixed", 30, 4.0, "dpmpp_2m", "karras", 1.0],
-    title="KSampler (GGUF Optimized)"
+    widgets_values=[random.randint(1, 100000), "fixed", 30, 4.0, "dpmpp_2m", "karras", 1.0],
+    title="SDXL Sampler"
 )
-ksampler_node["outputs"] = [{"name": "LATENT", "type": "LATENT", "links": []}]
+sdxl_sample_node["outputs"] = [{"name": "LATENT", "type": "LATENT", "links": []}]
 
-# VAE Decode
-vae_decode_id, vae_decode_node = builder.add_node(
-    "VAEDecode",
-    [2300, 1150],
+# Decode & Save
+sdxl_decode_id, sdxl_decode_node = builder.add_node(
+    "VAEDecode", [1400, 500], inputs={"samples": [sdxl_sample_id, 0], "vae": [sdxl_vae_id, 0]}, title="SDXL Decode"
+)
+sdxl_decode_node["outputs"] = [{"name": "IMAGE", "type": "IMAGE", "links": []}]
+
+builder.add_node("SaveImage", [1400, 650], inputs={"images": [sdxl_decode_id, 0]}, widgets_values=["SDXL_Result"], title="Save SDXL")
+
+
+# =================================================================================================
+# GROUP 3: Chroma Pipeline (FLUX Architecture)
+# =================================================================================================
+builder.add_group("Chroma Pipeline (FLUX)", [700, 850, 1000, 600])
+
+# Chroma Loaders
+chroma_unet_id, chroma_unet_node = builder.add_node(
+    "UNETLoader", [750, 900], # FLUX usually uses UNETLoader or CheckpointLoader
+    widgets_values=["chroma-unlocked-v33.safetensors"], title="Chroma Model (FLUX)"
+)
+chroma_unet_node["outputs"] = [{"name": "MODEL", "type": "MODEL", "links": []}]
+
+# CLIP for Chroma (T5 + CLIP_L)
+chroma_clip_id, chroma_clip_node = builder.add_node(
+    "DualCLIPLoader", [750, 1050],
+    widgets_values=["t5xxl_fp8_e4m3fn_scaled.safetensors", "clip_l.safetensors", "flux"], # 'flux' type if available
+    title="Chroma CLIP (T5+L)"
+)
+chroma_clip_node["outputs"] = [{"name": "CLIP", "type": "CLIP", "links": []}]
+
+chroma_vae_id, chroma_vae_node = builder.add_node(
+    "VAELoader", [750, 1200], widgets_values=["ae.safetensors"], title="Chroma VAE"
+)
+chroma_vae_node["outputs"] = [{"name": "VAE", "type": "VAE", "links": []}]
+
+# Empty Latent for Chroma (Flux usually needs specific sizing)
+# We can use the Ultimate Encoder's scaled image logic to get dimensions, or just a simple EmptyLatent
+empty_latent_id, empty_latent_node = builder.add_node(
+    "EmptyLatentImage", [750, 1350], widgets_values=[1024, 1024, 1], title="Empty Latent (Chroma)"
+)
+empty_latent_node["outputs"] = [{"name": "LATENT", "type": "LATENT", "links": []}]
+
+# Prompt Encoding for Chroma
+# We use the text from Ultimate Prompt, but encoded via standard CLIP for Chroma/Flux
+chroma_pos_id, chroma_pos_node = builder.add_node(
+    "CLIPTextEncode", [1050, 1050],
+    inputs={"clip": [chroma_clip_id, 0]},
+    widgets_values=[""], # Will be manually connected to Prompt Output
+    title="Chroma Positive"
+)
+# Manual link from Prompt Node to Widget? No, ComfyUI allows converting widget to input.
+# The script here assumes standard inputs.
+# We'll map the text input of CLIPTextEncode to the output of UltimatePrompt.
+# NOTE: Standard CLIPTextEncode doesn't have a string input unless converted.
+# To support this in the script, we treat 'text' as an input link if possible.
+# In ComfyUI JSON, if 'text' is a widget, it's a string. If converted to input, it's a link.
+# We will simulate this by adding a Primitive node or assuming the user will connect it.
+# Or better: Use a node that accepts string input, like "CLIPTextEncode (Advanced)" or primitive routing.
+# For simplicity in this script, we will define it as an input link here.
+chroma_pos_node["inputs"].append({"name": "text", "type": "STRING", "link": [prompt_node_id, 0]}) # Manual link hack for script generator
+# Update links list manually for this special case
+link_id = builder.get_link_id()
+builder.links.append([link_id, prompt_node_id, 0, chroma_pos_id, len(chroma_pos_node["inputs"])-1, "text"])
+chroma_pos_node["inputs"][-1]["link"] = link_id
+chroma_pos_node["outputs"] = [{"name": "CONDITIONING", "type": "CONDITIONING", "links": []}]
+
+
+chroma_neg_id, chroma_neg_node = builder.add_node(
+    "CLIPTextEncode", [1050, 1200],
+    inputs={"clip": [chroma_clip_id, 0]},
+    widgets_values=["text, watermark, low quality"],
+    title="Chroma Negative"
+)
+chroma_neg_node["outputs"] = [{"name": "CONDITIONING", "type": "CONDITIONING", "links": []}]
+
+
+# KSampler Chroma
+chroma_sample_id, chroma_sample_node = builder.add_node(
+    "KSampler", [1400, 1050],
     inputs={
-        "samples": [ksampler_id, 0],
-        "vae": [vae_loader_id, 0]
+        "model": [chroma_unet_id, 0],
+        "positive": [chroma_pos_id, 0],
+        "negative": [chroma_neg_id, 0],
+        "latent_image": [empty_latent_id, 0]
     },
-    title="VAE Decode"
+    widgets_values=[random.randint(1, 100000), "fixed", 20, 3.5, "euler", "simple", 1.0], # Flux settings
+    title="Chroma Sampler"
 )
-vae_decode_node["outputs"] = [{"name": "IMAGE", "type": "IMAGE", "links": []}]
+chroma_sample_node["outputs"] = [{"name": "LATENT", "type": "LATENT", "links": []}]
 
-# Save Image
-save_image_id, save_image_node = builder.add_node(
-    "SaveImage",
-    [2550, 1150],
-    inputs={"images": [vae_decode_id, 0]},
-    widgets_values=["ArchViz_Ultimate_Result"],
-    title="Save Result"
+
+# Decode & Save Chroma
+chroma_decode_id, chroma_decode_node = builder.add_node(
+    "VAEDecode", [1400, 1300], inputs={"samples": [chroma_sample_id, 0], "vae": [chroma_vae_id, 0]}, title="Chroma Decode"
 )
+chroma_decode_node["outputs"] = [{"name": "IMAGE", "type": "IMAGE", "links": []}]
 
-builder.save("ultimate_archviz_workflow_gguf.json")
-print("Ultimate GGUF Workflow generated successfully.")
+builder.add_node("SaveImage", [1400, 1450], inputs={"images": [chroma_decode_id, 0]}, widgets_values=["Chroma_Result"], title="Save Chroma")
+
+
+builder.save("ultimate_archviz_workflow_chroma_sdxl.json")
+print("Workflow generated successfully.")
